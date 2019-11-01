@@ -70,6 +70,12 @@ public:
 	typedef typename BASE::Weight Weight;
 
 	DijkstraSP(const GraphType& g, int v)  {
+    //std::priority_queue<Edge, std::vector<Edge>, std::greater<Edge> > pq;
+    //g.forEachAdjacentEdge (v, [&pq] (const Edge& e) -> void {pq.push(e);});
+
+    //while(!pq.empty()) {
+      //pq.
+    //}
 		/* A IMPLEMENTER */
 	}
 };

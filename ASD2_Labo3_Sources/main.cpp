@@ -17,6 +17,8 @@
 #include "EdgeWeightedGraph.h"
 #include "EdgeWeightedDiGraph.h"
 
+#include "TrainGraphWrapper.h"
+
 using namespace std;
 
 
@@ -27,7 +29,8 @@ using namespace std;
 // - 6 CHF par km pour les lignes ayant 2 voies
 // - 3 CHF par km pour les lignes ayant 1 voie
 void ReseauLeMoinsCher(TrainNetwork &tn) {
-
+    TrainGraphWrapper tgw(tn);
+    auto mst = MinimumSpanningTree<TrainGraphWrapper>::Kruskal(tgw);
     /* A IMPLEMENTER */
 }
 
