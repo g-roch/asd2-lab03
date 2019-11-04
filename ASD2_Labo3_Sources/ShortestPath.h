@@ -70,13 +70,24 @@ public:
 	typedef typename BASE::Weight Weight;
 
 	DijkstraSP(const GraphType& g, int v)  {
-    //std::priority_queue<Edge, std::vector<Edge>, std::greater<Edge> > pq;
-    //g.forEachAdjacentEdge (v, [&pq] (const Edge& e) -> void {pq.push(e);});
+        //distTo[v] = 0 pour la ou les sources
+        //distTo[v] = infini pour les autres sommets
+        //E = ensemble de tous les sommets
+        // infini = max de unsigned
+        unsigned distTo[g.V()];
+        for(unsigned u : distTo){
+            if(u == v) distTo[u] = 0;
+            else{ distTo[u] = -1;}
+        }
+        std::priority_queue<Edge, std::vector<Edge>> pq;
+        g.forEachAdjacentEdge (v, [&pq] (const Edge& e) -> void {pq.push(e);});
 
-    //while(!pq.empty()) {
-      //pq.
-    //}
-		/* A IMPLEMENTER */
+        while(!pq.empty()) {
+          pq.pop(std::min_element(distTo,distTo+g.V()));
+
+          //manque relacher tous les arcs v->w issus de v
+        }
+            /* A IMPLEMENTER */
 	}
 };
 
