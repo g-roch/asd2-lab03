@@ -29,15 +29,16 @@ using namespace std;
 // - 6 CHF par km pour les lignes ayant 2 voies
 // - 3 CHF par km pour les lignes ayant 1 voie
 void ReseauLeMoinsCher(TrainNetwork &tn) {
-    TrainGraphWrapper tgw(tn);
-    auto mst = MinimumSpanningTree<TrainGraphWrapper>::Kruskal(tgw);
+		std::vector<int> cost = {0, 3, 6, 10, 15};
+    TrainGraphWrapperCostTrack tgw(tn, cost);
+    auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::Kruskal(tgw);
     /* A IMPLEMENTER */
 }
 
 // Calcule et affiche le plus court chemin de la ville depart a la ville arrivee
 // en passant par le reseau ferroviaire tn. Le critere a optimiser est la distance.
 void PlusCourtChemin(const string& depart, const string& arrivee, TrainNetwork& tn) {
-
+    TrainGraphWrapperDistance tgw(tn);
     /* A IMPLEMENTER */
 }
 
@@ -46,13 +47,19 @@ void PlusCourtChemin(const string& depart, const string& arrivee, TrainNetwork& 
 // inaccessible. Vous pouvez mettre un cout infini aux arcs ayant comme depart ou
 // comme arrivee cette ville en travaux. Le critere a optimiser est la distance.
 void PlusCourtCheminAvecTravaux(const string& depart, const string& arrivee, const string& gareEnTravaux, TrainNetwork& tn) {
-
+	TrainNetwork tnTravaux(tn);
+	int id = tnTravaux.cityIdx.at(gareEnTravaux);
+	for(auto & l : tnTravaux.lines) {
+		l.length = std::numeric_limits<int>::max();
+	}
+  TrainGraphWrapperDistance tgw(tn);
     /* A IMPLEMENTER */
 }
 
 // Calcule et affiche le plus rapide chemin de la ville depart a la ville arrivee via la ville "via"
 // en passant par le reseau ferroviaire tn. Le critere a optimiser est le temps de parcours
 void PlusRapideChemin(const string& depart, const string& arrivee, const string& via, TrainNetwork& tn) {
+  TrainGraphWrapperDuration tgw(tn);
 
     /* A IMPLEMENTER */
 }
