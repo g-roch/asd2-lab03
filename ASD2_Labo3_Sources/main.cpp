@@ -85,6 +85,7 @@ void testShortestPath(string filename)
 
     DijkstraSP<Graph> testSP(ewd,0);
 
+
     cout << "Dijkstra:     " << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << endl;
 
     for (int v=0; v<ewd.V(); ++v) {
@@ -103,10 +104,10 @@ void testShortestPath(string filename)
 int main() {
 
     // Permet de tester votre implémentation de Dijkstra
-    //testShortestPath("tinyEWD.txt");
-    //testShortestPath("mediumEWD.txt");
-    //testShortestPath("1000EWD.txt");
-    //testShortestPath("10000EWD.txt");
+    testShortestPath("tinyEWD.txt");
+    testShortestPath("mediumEWD.txt");
+    testShortestPath("1000EWD.txt");
+    testShortestPath("10000EWD.txt");
 
     TrainNetwork tn("reseau.txt");
 

@@ -74,19 +74,47 @@ public:
         //distTo[v] = infini pour les autres sommets
         //E = ensemble de tous les sommets
         // infini = max de unsigned
-        unsigned distTo[g.V()];
-        for(unsigned u : distTo){
-            if(u == v) distTo[u] = 0;
-            else{ distTo[u] = -1;}
-        }
-        std::priority_queue<Edge, std::vector<Edge>> pq;
-        g.forEachAdjacentEdge (v, [&pq] (const Edge& e) -> void {pq.push(e);});
+				//
+        //unsigned distTo[g.V()];
+        //for(unsigned u : distTo){
+        //    if(u == v) distTo[u] = 0;
+        //    else{ distTo[u] = -1;}
+        //}
+        //std::priority_queue<Edge, std::vector<Edge>> pq;
+        //g.forEachAdjacentEdge (v, [&pq] (const Edge& e) -> void {pq.push(e);});
 
-        while(!pq.empty()) {
-          pq.pop(std::min_element(distTo,distTo+g.V()));
+        //while(!pq.empty()) {
+        //  pq.pop(std::min_element(distTo,distTo+g.V()));
 
-          //manque relacher tous les arcs v->w issus de v
-        }
+        //  //manque relacher tous les arcs v->w issus de v
+        //}
+
+				// Version GRH
+		    //std::vector<unsigned> distTo(g.V(), -1);
+				
+				BASE::distanceTo.resize(g.V(), std::numeric_limits<Weight>::max());
+				BASE::distanceTo.at(v) = 0;
+
+				std::set<int> toTTT;
+				g.forEachVertex([& toTTT] (int i) { toTTT.insert(i);});
+				while(!toTTT.empty()) {
+					int vertexMin = *toTTT.begin();
+					// find min
+					//
+					for(int i : toTTT)
+						if(BASE::distanceTo.at(i) < BASE::distanceTo.at(vertexMin))
+							vertexMin = i;
+
+					toTTT.erase(vertexMin);
+
+					g.forEachAdjacentEdge(vertexMin, [&toTTT, this] (const Edge& e) {
+							Weight newWeight = BASE::distanceTo.at(e.From()) + e.Weight();
+							if(toTTT.count(e.To()) == 1 and BASE::distanceTo.at(e.To()) > newWeight) {
+								BASE::distanceTo.at(e.To()) = newWeight;
+							}
+						});
+
+				}
             /* A IMPLEMENTER */
 	}
 };
