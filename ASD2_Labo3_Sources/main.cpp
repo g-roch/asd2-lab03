@@ -41,8 +41,8 @@ void ReseauLeMoinsCher(TrainNetwork &tn) {
 		std::vector<int> cost = {0, 3, 6, 10, 15};
     TrainGraphWrapperCostTrack tgw(tn, cost);
 		//tgw.forEachEdge([] (auto i) { cout << i.Either() << " ←→ " << i.Other(i.Either()) << endl; });
-		auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::EagerPrim(tgw);
-    //auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::Kruskal(tgw);
+		//auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::EagerPrim(tgw);
+    auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::Kruskal(tgw);
 		unsigned int weightTotal = 0;
 		for(auto const & i : mst) {
 			weightTotal += i.Weight();
@@ -137,10 +137,10 @@ void testShortestPath(string filename)
 int main() {
 
     // Permet de tester votre implémentation de Dijkstra
-    testShortestPath("tinyEWD.txt");
-    testShortestPath("mediumEWD.txt");
-    testShortestPath("1000EWD.txt");
-    testShortestPath("10000EWD.txt");
+    //testShortestPath("tinyEWD.txt");
+    //testShortestPath("mediumEWD.txt");
+    //testShortestPath("1000EWD.txt");
+    //testShortestPath("10000EWD.txt");
 
     TrainNetwork tn("reseau.txt");
 
