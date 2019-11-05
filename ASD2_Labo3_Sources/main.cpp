@@ -21,6 +21,15 @@
 
 using namespace std;
 
+template<typename Path>
+ostream & printVia(ostream & os, Path path, TrainNetwork const & tn, int v) {
+		os << "  via " << tn.cities[path.front().From()].name;
+		for(auto const & i : path) {
+			os << " → " << tn.cities[i.To()].name;
+		}
+		os << endl;
+		return os;
+}
 
 // Calcule et affiche le plus reseau a renover couvrant toutes les villes le moins cher.
 // Le prix pour renover 1 km de chemin de fer est de :
@@ -31,7 +40,14 @@ using namespace std;
 void ReseauLeMoinsCher(TrainNetwork &tn) {
 		std::vector<int> cost = {0, 3, 6, 10, 15};
     TrainGraphWrapperCostTrack tgw(tn, cost);
-    auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::Kruskal(tgw);
+		tgw.forEachEdge([] (auto i) { cout << i.Either() << " ←→ " << i.Other(i.Either()) << endl; });
+		auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::EagerPrim(tgw);
+    //auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::Kruskal(tgw);
+		for(auto const & i : mst) {
+			cout << tn.cities[tn.lines[i.Either()].cities.first].name << " (" << tn.lines[i.Either()].cities.first << ") → ";
+			cout << tn.cities[tn.lines[i.Either()].cities.second].name << " (" << tn.lines[i.Either()].cities.second << ") : ";
+			cout << i.Weight() << " MF" << endl;
+		}
     /* A IMPLEMENTER */
 }
 
@@ -39,6 +55,9 @@ void ReseauLeMoinsCher(TrainNetwork &tn) {
 // en passant par le reseau ferroviaire tn. Le critere a optimiser est la distance.
 void PlusCourtChemin(const string& depart, const string& arrivee, TrainNetwork& tn) {
     TrainGraphWrapperDistance tgw(tn);
+    DijkstraSP<TrainGraphWrapperDistance> referenceSP(tgw,tn.cityIdx[depart]);
+		cout << "  longueur = " << referenceSP.DistanceTo(tn.cityIdx[arrivee]) << " km" << endl;
+		printVia(cout, referenceSP.PathTo(tn.cityIdx[arrivee]), tn, tn.cityIdx[arrivee]);
     /* A IMPLEMENTER */
 }
 
@@ -48,11 +67,14 @@ void PlusCourtChemin(const string& depart, const string& arrivee, TrainNetwork& 
 // comme arrivee cette ville en travaux. Le critere a optimiser est la distance.
 void PlusCourtCheminAvecTravaux(const string& depart, const string& arrivee, const string& gareEnTravaux, TrainNetwork& tn) {
 	TrainNetwork tnTravaux(tn);
-	int id = tnTravaux.cityIdx.at(gareEnTravaux);
-	for(auto & l : tnTravaux.lines) {
-		l.length = std::numeric_limits<int>::max();
+	int idGareEnTravaux = tnTravaux.cityIdx.at(gareEnTravaux);
+
+	for(int lineid : tnTravaux.cities[idGareEnTravaux].lines) {
+		tnTravaux.lines[lineid].length = std::numeric_limits<int>::max();
 	}
-  TrainGraphWrapperDistance tgw(tn);
+	tnTravaux.cities[idGareEnTravaux].lines.resize(0);
+
+	PlusCourtChemin(depart, arrivee, tnTravaux);
     /* A IMPLEMENTER */
 }
 
@@ -60,6 +82,14 @@ void PlusCourtCheminAvecTravaux(const string& depart, const string& arrivee, con
 // en passant par le reseau ferroviaire tn. Le critere a optimiser est le temps de parcours
 void PlusRapideChemin(const string& depart, const string& arrivee, const string& via, TrainNetwork& tn) {
   TrainGraphWrapperDuration tgw(tn);
+	DijkstraSP<TrainGraphWrapperDuration> part1(tgw,tn.cityIdx[depart]);
+	DijkstraSP<TrainGraphWrapperDuration> part2(tgw,tn.cityIdx[via]);
+	auto tot = part1.DistanceTo(tn.cityIdx[via]) + part2.DistanceTo(tn.cityIdx[arrivee]);
+	cout << "  temp = " << tot << " minutes" << endl;
+	auto path = part1.PathTo(tn.cityIdx[via]);
+	auto path2 = part2.PathTo(tn.cityIdx[arrivee]);
+	path.insert(path.end(), path2.begin(), path2.end());
+	printVia(cout, path, tn, tn.cityIdx[arrivee]);
 
     /* A IMPLEMENTER */
 }
@@ -104,10 +134,10 @@ void testShortestPath(string filename)
 int main() {
 
     // Permet de tester votre implémentation de Dijkstra
-    testShortestPath("tinyEWD.txt");
-    testShortestPath("mediumEWD.txt");
-    testShortestPath("1000EWD.txt");
-    testShortestPath("10000EWD.txt");
+    //testShortestPath("tinyEWD.txt");
+    //testShortestPath("mediumEWD.txt");
+    //testShortestPath("1000EWD.txt");
+    //testShortestPath("10000EWD.txt");
 
     TrainNetwork tn("reseau.txt");
 

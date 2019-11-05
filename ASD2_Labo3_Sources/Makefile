@@ -1,16 +1,24 @@
 
+BIN=main
+DIFFFILE=ok.txt
+
 CC=$(CXX)
 
 CXXFLAGS=-MMD -MP
 CFLAGS=-MMD -MP
 #CXXFLAGS=
 
+
 SRC_FILES=$(wildcard *.cpp)
 
-all: main
+all: $(BIN)
 
-run: main
+run: $(BIN)
 	./$<
+
+diff: $(BIN)
+	./$< > diff.txt
+	meld ok.txt diff.txt
 
 install:
 
@@ -19,4 +27,4 @@ install:
 main: $(patsubst %.cpp,%.o,$(SRC_FILES))
 
 clean:
-	rm -f *.o main *.d
+	rm -f *.o $(BIN) *.d

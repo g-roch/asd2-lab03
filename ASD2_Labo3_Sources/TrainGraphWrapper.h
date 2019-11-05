@@ -30,12 +30,14 @@ class TrainGraphWrapper {
 		// la fonction f doit prendre un seul argument de type int
 		template<typename Func >
 			void forEachAdjacentVertex (int v, Func f) const {
-				for(const TrainNetwork::Line & e : tn.lines) 
+				for(int lineid : tn.cities[v].lines) {
+					TrainNetwork::Line e = tn.lines[lineid];
 					if(e.cities.first == v) {
 						f(e.cities.second);
 					} else if(e.cities.second == v) {
 						f(e.cities.first);
 					}
+				}
 			}
 
 	protected:
@@ -43,10 +45,12 @@ class TrainGraphWrapper {
 		// la fonction f doit prendre un seul argument de type
 		// ...::Edge
 		template<typename Func, typename EdgeFunc>
-			void forEachAdjacentEdge(WeightType v, Func f, EdgeFunc edgeFunc) const  {
-				for(const TrainNetwork::Line & e : tn.lines) 
-					if(e.cities.first == v or e.cities.second == v)
-						f(edgeFunc(e));
+			void forEachAdjacentEdge(int v, Func f, EdgeFunc edgeFunc) const  {
+				for(int lineid : tn.cities[v].lines) {
+				//for(const TrainNetwork::Line & e : tn.lines) 
+					TrainNetwork::Line e = tn.lines[lineid];
+					for(const auto & i : edgeFunc(e)) f(i);
+				}
 			}
 
 		// Parcours de toutes les arêtes du graphe.
@@ -55,28 +59,43 @@ class TrainGraphWrapper {
 		template<typename Func, typename EdgeFunc>
 			void forEachEdge (Func f, EdgeFunc edgeFunc) const {
 				for(const TrainNetwork::Line & e : tn.lines) 
-					f(edgeFunc(e));
+					for(const auto & i : edgeFunc(e))
+						f(i);
 			}
 
 };
 
 class TrainGraphWrapperCostTrack : public TrainGraphWrapper {
-	private:
-		std::vector<int> cost;
 	public:
 		// Type des arcs/arêtes.
 		typedef WeightedEdge<int> Edge;
+	private:
+		std::vector<int> cost;
+
+	public:
 
 		template<typename Func>
-			void forEachAdjacentEdge(WeightType v, Func f) const  {
+			void forEachAdjacentEdge(int v, Func f) const  {
 				TrainGraphWrapper::forEachAdjacentEdge(v, f, 
-						[this] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, cost.at(e.nbTracks)); }
+						[this] (const TrainNetwork::Line & e) -> std::vector<Edge> { 
+							return {
+								//Edge(e.cities.first, e.cities.second, cost.at(e.nbTracks)*e.length), 
+								Edge(e.cities.second, e.cities.first, cost.at(e.nbTracks)*e.length) 
+								//Edge(e.cities.second, e.cities.first, e.nbTracks) 
+							};
+						}
 					);
 			}
 		template<typename Func>
 			void forEachEdge(Func f) const {
 				TrainGraphWrapper::forEachEdge(f, 
-						[this] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, cost.at(e.nbTracks)); }
+						[this] (const TrainNetwork::Line & e) -> std::vector<Edge> { 
+							return {
+								//Edge(e.cities.first, e.cities.second, cost.at(e.nbTracks)*e.length),
+								Edge(e.cities.second, e.cities.first, cost.at(e.nbTracks)*e.length)
+								//Edge(e.cities.second, e.cities.first, e.nbTracks) 
+							};
+						}
 					);
 			}
 		TrainGraphWrapperCostTrack(const TrainNetwork & tn, const std::vector<int> & cost) : TrainGraphWrapper(tn), cost(cost) {
@@ -86,18 +105,28 @@ class TrainGraphWrapperCostTrack : public TrainGraphWrapper {
 class TrainGraphWrapperDistance : public TrainGraphWrapper {
 	public:
 		// Type des arcs/arêtes.
-		typedef WeightedEdge<int> Edge;
+		typedef WeightedDirectedEdge<int> Edge;
+	private:
+		static std::vector<Edge> getEdge(const TrainNetwork::Line & e) {
+			return {
+				Edge(e.cities.first, e.cities.second, e.length),
+				Edge(e.cities.second, e.cities.first, e.length)
+			};
+		}
+	public:
 
 		template<typename Func>
-			void forEachAdjacentEdge(WeightType v, Func f) const  {
+			void forEachAdjacentEdge(int v, Func f) const  {
 				TrainGraphWrapper::forEachAdjacentEdge(v, f, 
-						[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.length); }
+						getEdge
+						//[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.length); }
 					);
 			}
 		template<typename Func>
 			void forEachEdge(Func f) const {
 				TrainGraphWrapper::forEachEdge(f, 
-						[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.length); }
+						getEdge
+						//[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.length); }
 					);
 			}
 		TrainGraphWrapperDistance(const TrainNetwork & tn) : TrainGraphWrapper(tn) {
@@ -107,18 +136,28 @@ class TrainGraphWrapperDistance : public TrainGraphWrapper {
 class TrainGraphWrapperDuration : public TrainGraphWrapper {
 	public:
 		// Type des arcs/arêtes.
-		typedef WeightedEdge<int> Edge;
+		typedef WeightedDirectedEdge<int> Edge;
+	private:
+		static std::vector<Edge> getEdge(const TrainNetwork::Line & e) {
+			return {
+				Edge(e.cities.first, e.cities.second, e.duration),
+				Edge(e.cities.second, e.cities.first, e.duration)
+			};
+		}
+	public:
 
 		template<typename Func>
-			void forEachAdjacentEdge(WeightType v, Func f) const  {
+			void forEachAdjacentEdge(int v, Func f) const  {
 				TrainGraphWrapper::forEachAdjacentEdge(v, f, 
-						[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.duration); }
+						getEdge
+						//[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.duration); }
 					);
 			}
 		template<typename Func>
 			void forEachEdge(Func f) const {
 				TrainGraphWrapper::forEachEdge(f, 
-						[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.duration); }
+						getEdge
+						//[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.duration); }
 					);
 			}
 		TrainGraphWrapperDuration(const TrainNetwork & tn) : TrainGraphWrapper(tn) {

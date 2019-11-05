@@ -52,7 +52,14 @@ public:
 	// Renvoie la liste ordonnee des arcs constituant un chemin le plus court du
 	// sommet source à v.
 	Edges PathTo(int v) {
-		/* A IMPLEMENTER */
+		Edges e;
+		int i = 0;
+		while(DistanceTo(v) != 0) {
+			e.push_back(edgeTo.at(v));
+			v = e.back().From();
+		}
+		std::reverse(e.begin(), e.end());
+		return e;
 	}
 
 protected:
@@ -68,6 +75,17 @@ public:
 	typedef ShortestPath<GraphType> BASE;
 	typedef typename BASE::Edge Edge;
 	typedef typename BASE::Weight Weight;
+
+	// Relachement de l'arc e
+	void relax(const Edge& e) {
+		int v = e.From(), w = e.To();
+		Weight distThruE = this->distanceTo[v]+e.Weight();
+		
+		if(this->distanceTo[w] > distThruE) {
+			this->distanceTo[w] = distThruE;
+			this->edgeTo[w] = e;
+		}
+	}
 
 	DijkstraSP(const GraphType& g, int v)  {
         //distTo[v] = 0 pour la ou les sources
@@ -93,6 +111,7 @@ public:
 		    //std::vector<unsigned> distTo(g.V(), -1);
 				
 				BASE::distanceTo.resize(g.V(), std::numeric_limits<Weight>::max());
+				BASE::edgeTo.resize(g.V());
 				BASE::distanceTo.at(v) = 0;
 
 				std::set<int> toTTT;
@@ -108,10 +127,11 @@ public:
 					toTTT.erase(vertexMin);
 
 					g.forEachAdjacentEdge(vertexMin, [&toTTT, this] (const Edge& e) {
-							Weight newWeight = BASE::distanceTo.at(e.From()) + e.Weight();
-							if(toTTT.count(e.To()) == 1 and BASE::distanceTo.at(e.To()) > newWeight) {
-								BASE::distanceTo.at(e.To()) = newWeight;
-							}
+							if(toTTT.count(e.To()) == 1)	relax(e);
+							//Weight newWeight = BASE::distanceTo.at(e.From()) + e.Weight();
+							//if(toTTT.count(e.To()) == 1 and BASE::distanceTo.at(e.To()) > newWeight) {
+							//	BASE::distanceTo.at(e.To()) = newWeight;
+							//}
 						});
 
 				}
