@@ -27,7 +27,7 @@ ostream & printVia(ostream & os, Path path, TrainNetwork const & tn, int v) {
 		for(auto const & i : path) {
 			os << " → " << tn.cities[i.To()].name;
 		}
-		os << endl;
+		os << endl << endl;
 		return os;
 }
 
@@ -40,14 +40,17 @@ ostream & printVia(ostream & os, Path path, TrainNetwork const & tn, int v) {
 void ReseauLeMoinsCher(TrainNetwork &tn) {
 		std::vector<int> cost = {0, 3, 6, 10, 15};
     TrainGraphWrapperCostTrack tgw(tn, cost);
-		tgw.forEachEdge([] (auto i) { cout << i.Either() << " ←→ " << i.Other(i.Either()) << endl; });
+		//tgw.forEachEdge([] (auto i) { cout << i.Either() << " ←→ " << i.Other(i.Either()) << endl; });
 		auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::EagerPrim(tgw);
     //auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::Kruskal(tgw);
+		unsigned int weightTotal = 0;
 		for(auto const & i : mst) {
-			cout << tn.cities[tn.lines[i.Either()].cities.first].name << " (" << tn.lines[i.Either()].cities.first << ") → ";
-			cout << tn.cities[tn.lines[i.Either()].cities.second].name << " (" << tn.lines[i.Either()].cities.second << ") : ";
-			cout << i.Weight() << " MF" << endl;
+			weightTotal += i.Weight();
+			cout << tn.cities[i.Either()].name  << " - "
+			     << tn.cities[i.Other(i.Either())].name << " : "
+			     << i.Weight() << " MF" << endl;
 		}
+		cout << endl << "Coût Total : " << weightTotal << " MF" << endl << endl;
     /* A IMPLEMENTER */
 }
 
@@ -134,10 +137,10 @@ void testShortestPath(string filename)
 int main() {
 
     // Permet de tester votre implémentation de Dijkstra
-    //testShortestPath("tinyEWD.txt");
-    //testShortestPath("mediumEWD.txt");
-    //testShortestPath("1000EWD.txt");
-    //testShortestPath("10000EWD.txt");
+    testShortestPath("tinyEWD.txt");
+    testShortestPath("mediumEWD.txt");
+    testShortestPath("1000EWD.txt");
+    testShortestPath("10000EWD.txt");
 
     TrainNetwork tn("reseau.txt");
 
