@@ -10,15 +10,25 @@ class TrainGraphWrapper {
 		const TrainNetwork & tn;
 
 	public:
+               /**
+                * @brief Constructeur de la classe TrainGraphWrapper
+                * @param tn, réseau de train
+                */
 		TrainGraphWrapper(const TrainNetwork & tn) : tn(tn) {
 		}
 
+                /**
+                 * @brief renvoit la taille du graphe
+                 * @return taille du graphe
+                 */
 		int V() const {
 			return tn.cities.size();
 		}
 
-		// Parcours de tous les sommets du graphe.
-		// la fonction f doit prendre un seul argument de type int
+                /**
+                 * @brief Parcours de tous les sommets du graphe. La fonction f doit prendre un seul argument de type int
+                 * @param f, fonction que l'on veut effectuer sur chaque sommet
+                 */
 		template<typename Func>
 			void forEachVertex(Func f) const  {
 				for(int v=0;v<V();++v)
@@ -26,8 +36,12 @@ class TrainGraphWrapper {
 			}
 
 
-		// Parcours de tous les sommets adjacents au sommet v
-		// la fonction f doit prendre un seul argument de type int
+                /**
+                 * @brief Parcours de tous les sommets adjacents au sommet v
+                 *          la fonction f doit prendre un seul argument de type int
+                 * @param v, sommet
+                 * @param f, fonction que l'on veut effectuer
+                 */
 		template<typename Func >
 			void forEachAdjacentVertex (int v, Func f) const {
 				for(int lineid : tn.cities[v].lines) {
@@ -41,9 +55,15 @@ class TrainGraphWrapper {
 			}
 
 	protected:
-		// Parcours des arcs/arêtes adjacentes au sommet v.
-		// la fonction f doit prendre un seul argument de type
-		// ...::Edge
+		
+               /**
+                * @brief  Parcours des arcs/arêtes adjacentes au sommet v.
+                           la fonction f doit prendre un seul argument de type
+                           ...::Edge
+                * @param v, 
+                * @param f, 
+                * @param edgeFunc, 
+                */
 		template<typename Func, typename EdgeFunc>
 			void forEachAdjacentEdge(int v, Func f, EdgeFunc edgeFunc) const  {
 				for(int lineid : tn.cities[v].lines) {
@@ -53,9 +73,14 @@ class TrainGraphWrapper {
 				}
 			}
 
-		// Parcours de toutes les arêtes du graphe.
-		// la fonction f doit prendre un seul argument de type
-		// ...::Edge
+		
+                /**
+                 * @brief Parcours de toutes les arêtes du graphe.
+                              la fonction f doit prendre un seul argument de type
+                              ...::Edge
+                 * @param f
+                 * @param edgeFunc
+                 */
 		template<typename Func, typename EdgeFunc>
 			void forEachEdge (Func f, EdgeFunc edgeFunc) const {
 				for(const TrainNetwork::Line & e : tn.lines) 
@@ -74,6 +99,11 @@ class TrainGraphWrapperCostTrack : public TrainGraphWrapper {
 
 	public:
 
+               /**
+                * 
+                * @param v
+                * @param f
+                */
 		template<typename Func>
 			void forEachAdjacentEdge(int v, Func f) const  {
 				TrainGraphWrapper::forEachAdjacentEdge(v, f, 
@@ -86,6 +116,10 @@ class TrainGraphWrapperCostTrack : public TrainGraphWrapper {
 						}
 					);
 			}
+                /**
+                 * 
+                 * @param f
+                 */
 		template<typename Func>
 			void forEachEdge(Func f) const {
 				TrainGraphWrapper::forEachEdge(f, 
@@ -98,6 +132,11 @@ class TrainGraphWrapperCostTrack : public TrainGraphWrapper {
 						}
 					);
 			}
+                /**
+                 * 
+                 * @param tn
+                 * @param cost
+                 */
 		TrainGraphWrapperCostTrack(const TrainNetwork & tn, const std::vector<int> & cost) : TrainGraphWrapper(tn), cost(cost) {
 		}
 };
@@ -107,6 +146,11 @@ class TrainGraphWrapperDistance : public TrainGraphWrapper {
 		// Type des arcs/arêtes.
 		typedef WeightedDirectedEdge<int> Edge;
 	private:
+               /**
+                * 
+                * @param e
+                * @return 
+                */
 		static std::vector<Edge> getEdge(const TrainNetwork::Line & e) {
 			return {
 				Edge(e.cities.first, e.cities.second, e.length),
@@ -115,6 +159,11 @@ class TrainGraphWrapperDistance : public TrainGraphWrapper {
 		}
 	public:
 
+               /**
+                * 
+                * @param v
+                * @param f
+                */
 		template<typename Func>
 			void forEachAdjacentEdge(int v, Func f) const  {
 				TrainGraphWrapper::forEachAdjacentEdge(v, f, 
@@ -122,6 +171,10 @@ class TrainGraphWrapperDistance : public TrainGraphWrapper {
 						//[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.length); }
 					);
 			}
+                /**
+                 * 
+                 * @param f
+                 */
 		template<typename Func>
 			void forEachEdge(Func f) const {
 				TrainGraphWrapper::forEachEdge(f, 
@@ -129,6 +182,10 @@ class TrainGraphWrapperDistance : public TrainGraphWrapper {
 						//[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.length); }
 					);
 			}
+                /**
+                 * 
+                 * @param tn
+                 */
 		TrainGraphWrapperDistance(const TrainNetwork & tn) : TrainGraphWrapper(tn) {
 		}
 };
@@ -138,6 +195,11 @@ class TrainGraphWrapperDuration : public TrainGraphWrapper {
 		// Type des arcs/arêtes.
 		typedef WeightedDirectedEdge<int> Edge;
 	private:
+               /**
+                * 
+                * @param e
+                * @return 
+                */
 		static std::vector<Edge> getEdge(const TrainNetwork::Line & e) {
 			return {
 				Edge(e.cities.first, e.cities.second, e.duration),
@@ -146,6 +208,11 @@ class TrainGraphWrapperDuration : public TrainGraphWrapper {
 		}
 	public:
 
+               /**
+                * 
+                * @param v
+                * @param f
+                */
 		template<typename Func>
 			void forEachAdjacentEdge(int v, Func f) const  {
 				TrainGraphWrapper::forEachAdjacentEdge(v, f, 
@@ -153,6 +220,10 @@ class TrainGraphWrapperDuration : public TrainGraphWrapper {
 						//[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.duration); }
 					);
 			}
+                /**
+                 * 
+                 * @param f
+                 */
 		template<typename Func>
 			void forEachEdge(Func f) const {
 				TrainGraphWrapper::forEachEdge(f, 
@@ -160,6 +231,10 @@ class TrainGraphWrapperDuration : public TrainGraphWrapper {
 						//[] (const TrainNetwork::Line & e) -> Edge { return Edge(e.cities.first, e.cities.second, e.duration); }
 					);
 			}
+                /**
+                 * 
+                 * @param tn
+                 */
 		TrainGraphWrapperDuration(const TrainNetwork & tn) : TrainGraphWrapper(tn) {
 		}
 };

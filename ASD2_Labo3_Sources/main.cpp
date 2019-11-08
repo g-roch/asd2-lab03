@@ -1,7 +1,9 @@
 //
 //  main.cpp
 //  Labo3
+//  Auteur : Gabriel Roch, Gwendoline Dossegger, Jean-Luc Blanc
 //
+// 
 //  Created by Olivier Cuisenaire on 18.11.14.
 //
 //
@@ -21,22 +23,33 @@
 
 using namespace std;
 
+/**
+ * @brief Affichage des lignes de trains
+ * @param os, flux de sortie
+ * @param path, path chemin de station(id)
+ * @param tn, réseau de trains et de lignes complet
+ * @return 
+ */
 template<typename Path>
-ostream & printVia(ostream & os, Path path, TrainNetwork const & tn, int v) {
+ostream & printVia(ostream & os, Path path, TrainNetwork const & tn) {
 		os << "  via " << tn.cities[path.front().From()].name;
 		for(auto const & i : path) {
-			os << " → " << tn.cities[i.To()].name;
+			os << " -> " << tn.cities[i.To()].name;
 		}
 		os << endl << endl;
 		return os;
 }
 
-// Calcule et affiche le plus reseau a renover couvrant toutes les villes le moins cher.
-// Le prix pour renover 1 km de chemin de fer est de :
-// - 15 CHF par km pour les lignes ayant 4 voies
-// - 10 CHF par km pour les lignes ayant 3 voies
-// - 6 CHF par km pour les lignes ayant 2 voies
-// - 3 CHF par km pour les lignes ayant 1 voie
+
+/**
+ * @brief Calcule et affiche le plus reseau a renover couvrant toutes les villes le moins cher.
+             Le prix pour renover 1 km de chemin de fer est de :
+            - 15 CHF par km pour les lignes ayant 4 voies
+            - 10 CHF par km pour les lignes ayant 3 voies
+            - 6 CHF par km pour les lignes ayant 2 voies
+            - 3 CHF par km pour les lignes ayant 1 voie
+ * @param tn, réseau de trains et de lignes
+ */
 void ReseauLeMoinsCher(TrainNetwork &tn) {
 		std::vector<int> cost = {0, 3, 6, 10, 15};
     TrainGraphWrapperCostTrack tgw(tn, cost);
@@ -51,23 +64,34 @@ void ReseauLeMoinsCher(TrainNetwork &tn) {
 			     << i.Weight() << " MF" << endl;
 		}
 		cout << endl << "Coût Total : " << weightTotal << " MF" << endl << endl;
-    /* A IMPLEMENTER */
 }
 
-// Calcule et affiche le plus court chemin de la ville depart a la ville arrivee
-// en passant par le reseau ferroviaire tn. Le critere a optimiser est la distance.
+
+/**
+ * @brief Calcule et affiche le plus court chemin de la ville depart a la ville arrivee
+ *          en passant par le reseau ferroviaire tn. Le critere a optimiser est la distance.
+ * @param depart, Ville de départ
+ * @param arrivee, Ville d'arrivée
+ * @param tn, réseau de trains et de lignes complet
+ */
 void PlusCourtChemin(const string& depart, const string& arrivee, TrainNetwork& tn) {
     TrainGraphWrapperDistance tgw(tn);
     DijkstraSP<TrainGraphWrapperDistance> referenceSP(tgw,tn.cityIdx[depart]);
 		cout << "  longueur = " << referenceSP.DistanceTo(tn.cityIdx[arrivee]) << " km" << endl;
-		printVia(cout, referenceSP.PathTo(tn.cityIdx[arrivee]), tn, tn.cityIdx[arrivee]);
-    /* A IMPLEMENTER */
+		printVia(cout, referenceSP.PathTo(tn.cityIdx[arrivee]), tn);
 }
 
-// Calcule et affiche le plus court chemin de la ville depart a la ville arrivee
-// en passant par le reseau ferroviaire tn ayant une ville en travaux et donc
-// inaccessible. Vous pouvez mettre un cout infini aux arcs ayant comme depart ou
-// comme arrivee cette ville en travaux. Le critere a optimiser est la distance.
+
+/**
+ * @brief Calcule et affiche le plus court chemin de la ville depart a la ville arrivee
+             en passant par le reseau ferroviaire tn ayant une ville en travaux et donc
+             inaccessible. Vous pouvez mettre un cout infini aux arcs ayant comme depart ou
+             comme arrivee cette ville en travaux. Le critere a optimiser est la distance.
+ * @param depart, Ville de départ
+ * @param arrivee, Ville d'arrivée
+ * @param gareEnTravaux, gare où les travaux ont lieu
+ * @param tn, réseau de trains et de lignes complet
+ */
 void PlusCourtCheminAvecTravaux(const string& depart, const string& arrivee, const string& gareEnTravaux, TrainNetwork& tn) {
 	TrainNetwork tnTravaux(tn);
 	int idGareEnTravaux = tnTravaux.cityIdx.at(gareEnTravaux);
@@ -78,23 +102,28 @@ void PlusCourtCheminAvecTravaux(const string& depart, const string& arrivee, con
 	tnTravaux.cities[idGareEnTravaux].lines.resize(0);
 
 	PlusCourtChemin(depart, arrivee, tnTravaux);
-    /* A IMPLEMENTER */
 }
 
-// Calcule et affiche le plus rapide chemin de la ville depart a la ville arrivee via la ville "via"
-// en passant par le reseau ferroviaire tn. Le critere a optimiser est le temps de parcours
+
+/**
+ * @brief Calcule et affiche le plus rapide chemin de la ville depart a la ville arrivee via la ville "via"
+            en passant par le reseau ferroviaire tn. Le critere a optimiser est le temps de parcours
+ * @param depart, Ville de départ
+ * @param arrivee, Ville d'arrivée
+ * @param via, direction
+ * @param tn, réseau de trains et de lignes complet
+ */
 void PlusRapideChemin(const string& depart, const string& arrivee, const string& via, TrainNetwork& tn) {
   TrainGraphWrapperDuration tgw(tn);
 	DijkstraSP<TrainGraphWrapperDuration> part1(tgw,tn.cityIdx[depart]);
 	DijkstraSP<TrainGraphWrapperDuration> part2(tgw,tn.cityIdx[via]);
 	auto tot = part1.DistanceTo(tn.cityIdx[via]) + part2.DistanceTo(tn.cityIdx[arrivee]);
-	cout << "  temp = " << tot << " minutes" << endl;
+	cout << "  temps = " << tot << " minutes" << endl;
 	auto path = part1.PathTo(tn.cityIdx[via]);
 	auto path2 = part2.PathTo(tn.cityIdx[arrivee]);
 	path.insert(path.end(), path2.begin(), path2.end());
-	printVia(cout, path, tn, tn.cityIdx[arrivee]);
+	printVia(cout, path, tn);
 
-    /* A IMPLEMENTER */
 }
 
 
