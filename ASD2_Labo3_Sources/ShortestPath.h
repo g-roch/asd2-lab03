@@ -1,8 +1,13 @@
 /* 
- * File:   ShortestPath.h
- * Author: Olivier Cuisenaire
+ * @file   ShortestPath.h
+ * @author Olivier Cuisenaire
+ *
+ * @author Gabriel Roch
+ * @author Gwendoline Dossegger
+ * @authro Jean-Luc Blanc
  *
  * Created on 5. novembre 2014, 10:16
+ *
  */
 
 #ifndef ASD2_ShortestPath_h
@@ -40,35 +45,35 @@ public:
 	typedef std::vector<Weight> Weights;
 
 	
-        /**
-         * @brief Renvoie la distance du chemin le plus court du sommet source a v
-         * @param v, index du sommet dont on veut connaitre la distance au sommet source
-         * @return distance entre les 2 sommets
-         */
-	Weight DistanceTo(int v) {
+	/**
+	 * @brief Renvoie la distance du chemin le plus court du sommet source a v
+	 * @param v, index du sommet dont on veut connaitre la distance au sommet source
+	 * @return distance entre les 2 sommets
+	 */
+	Weight DistanceTo(int v) const {
 		return distanceTo.at(v);
 	}
 	
 	
-        /**
-         * @brief Renvoie le dernier arc u->v du chemin le plus court du sommet source a v
-         * @param v, index du sommet dont on veut connaitre le dernier arc
-         * @return le dernier arc du chemin le plus court entre les 2 sommets
-         */
-	Edge EdgeTo(int v) {
+	/**
+	 * @brief Renvoie le dernier arc u->v du chemin le plus court du sommet source a v
+	 * @param v, index du sommet dont on veut connaitre le dernier arc
+	 * @return le dernier arc du chemin le plus court entre les 2 sommets
+	 */
+	Edge EdgeTo(int v) const {
 		return edgeTo.at(v);
 	}
 	
 
-        /**
-         * @brief Renvoie la liste ordonnee des arcs constituant un chemin le plus court du sommet source à v.
-         * @param v, sommet dont on veut connaitre le chemin le plus court constitué d'arc
-         * @return liste des arcs du chemin le plus court entre les 2 sommets
-         */
-	Edges PathTo(int v) {
+	/**
+	 * @brief Renvoie la liste ordonnee des arcs constituant un chemin le plus court du sommet source à v.
+	 * @param v, sommet dont on veut connaitre le chemin le plus court constitué d'arc
+	 * @return liste des arcs du chemin le plus court entre les 2 sommets
+	 */
+	Edges PathTo(int v) const {
 		Edges e;
 		while(DistanceTo(v) != 0) {
-			e.push_back(edgeTo.at(v));
+			e.push_back(EdgeTo(v));
 			v = e.back().From();
 		}
 		std::reverse(e.begin(), e.end());
@@ -89,10 +94,10 @@ public:
 	typedef typename BASE::Edge Edge;
 	typedef typename BASE::Weight Weight;
 
-        /**
-         * @brief Relachement de l'arc e
-         * @param e, arc que l'on veut relaché
-         */
+	/**
+	 * @brief Relachement de l'arc e
+	 * @param e, arc que l'on veut relaché
+	 */
 	void relax(const Edge& e) {
 		int v = e.From(), w = e.To();
 		Weight distThruE = this->distanceTo[v]+e.Weight();
@@ -103,11 +108,11 @@ public:
 		}
 	}
 
-        /**
-         * @brief Algorithme de Dijkstra, sert à déterminer le chemin le plus court dans un graphe
-         * @param g, graphe surlequel on veut effectuer l'algorithme
-         * @param v, index du sommet à partir duquel on veut calculer le chemin le plus court
-         */
+	/**
+	 * @brief Algorithme de Dijkstra, sert à déterminer le chemin le plus court dans un graphe
+	 * @param g, graphe surlequel on veut effectuer l'algorithme
+	 * @param v, index du sommet à partir duquel on veut calculer le chemin le plus court
+	 */
 	DijkstraSP(const GraphType& g, int v)  {
         //distTo[v] = 0 pour la ou les sources
         //distTo[v] = infini pour les autres sommets
@@ -177,10 +182,10 @@ private:
 	typedef typename BASE::Weight Weight;
 	
 	
-        /**
-         * @brief Relachement de l'arc e
-         * @param e, arc que l'on veut relaché
-         */
+	/**
+	 * @brief Relachement de l'arc e
+	 * @param e, arc que l'on veut relaché
+	 */
 	void relax(const Edge& e) {
 		int v = e.From(), w = e.To();
 		Weight distThruE = this->distanceTo[v]+e.Weight();
@@ -193,11 +198,11 @@ private:
 	
 public:
 
-      /**
-       * @brief Constructeur a partir du graphe g et du sommet v a la source des plus courts chemins
-       * @param g, graphe dans lequel on veut construire 
-       * @param v, sommet é partir duquel on veut construire
-       */
+	/**
+	 * @brief Constructeur a partir du graphe g et du sommet v a la source des plus courts chemins
+	 * @param g, graphe dans lequel on veut construire 
+	 * @param v, sommet é partir duquel on veut construire
+	 */
 	BellmanFordSP(const GraphType& g, int v) {
 		
 		this->edgeTo.resize(g.V());

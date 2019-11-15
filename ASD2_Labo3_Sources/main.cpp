@@ -1,12 +1,12 @@
-//
-//  main.cpp
-//  Labo3
-//  Auteur : Gabriel Roch, Gwendoline Dossegger, Jean-Luc Blanc
-//
-// 
-//  Created by Olivier Cuisenaire on 18.11.14.
-//
-//
+/**
+ * @file main.cpp
+ * Labo3
+ * @author Gabriel Roch
+ * @author Gwendoline Dossegger
+ * @authro Jean-Luc Blanc
+ * 
+ * Created by Olivier Cuisenaire on 18.11.14.
+ */
 
 #include <cstdlib>
 #include <iostream>
@@ -84,9 +84,9 @@ void PlusCourtChemin(const string& depart, const string& arrivee, TrainNetwork& 
 
 /**
  * @brief Calcule et affiche le plus court chemin de la ville depart a la ville arrivee
-             en passant par le reseau ferroviaire tn ayant une ville en travaux et donc
-             inaccessible. Vous pouvez mettre un cout infini aux arcs ayant comme depart ou
-             comme arrivee cette ville en travaux. Le critere a optimiser est la distance.
+ *        en passant par le reseau ferroviaire tn ayant une ville en travaux et donc
+ *        inaccessible. Vous pouvez mettre un cout infini aux arcs ayant comme depart ou
+ *        comme arrivee cette ville en travaux. Le critere a optimiser est la distance.
  * @param depart, Ville de départ
  * @param arrivee, Ville d'arrivée
  * @param gareEnTravaux, gare où les travaux ont lieu
@@ -107,7 +107,7 @@ void PlusCourtCheminAvecTravaux(const string& depart, const string& arrivee, con
 
 /**
  * @brief Calcule et affiche le plus rapide chemin de la ville depart a la ville arrivee via la ville "via"
-            en passant par le reseau ferroviaire tn. Le critere a optimiser est le temps de parcours
+ *        en passant par le reseau ferroviaire tn. Le critere a optimiser est le temps de parcours
  * @param depart, Ville de départ
  * @param arrivee, Ville d'arrivée
  * @param via, direction
@@ -163,6 +163,9 @@ void testShortestPath(string filename)
 
 
 
+/**
+ * @brief Fonction principale permettant d'effectué les tests
+ */
 int main() {
 
     // Permet de tester votre implémentation de Dijkstra
