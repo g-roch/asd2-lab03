@@ -4,7 +4,7 @@
  *
  * @author Gabriel Roch
  * @author Gwendoline Dossegger
- * @authro Jean-Luc Blanc
+ * @author Jean-Luc Blanc
  *
  * Created on 5. novembre 2014, 10:16
  *

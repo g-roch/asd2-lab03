@@ -3,7 +3,7 @@
  * Labo3
  * @author Gabriel Roch
  * @author Gwendoline Dossegger
- * @authro Jean-Luc Blanc
+ * @author Jean-Luc Blanc
  * 
  * Created by Olivier Cuisenaire on 18.11.14.
  */
@@ -51,19 +51,18 @@ ostream & printVia(ostream & os, Path path, TrainNetwork const & tn) {
  * @param tn, réseau de trains et de lignes
  */
 void ReseauLeMoinsCher(TrainNetwork &tn) {
-		std::vector<int> cost = {0, 3, 6, 10, 15};
-    TrainGraphWrapperCostTrack tgw(tn, cost);
-		//tgw.forEachEdge([] (auto i) { cout << i.Either() << " ←→ " << i.Other(i.Either()) << endl; });
-		//auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::EagerPrim(tgw);
-    auto mst = MinimumSpanningTree<TrainGraphWrapperCostTrack>::Kruskal(tgw);
-		unsigned int weightTotal = 0;
-		for(auto const & i : mst) {
-			weightTotal += i.Weight();
-			cout << tn.cities[i.Either()].name  << " - "
-			     << tn.cities[i.Other(i.Either())].name << " : "
-			     << i.Weight() << " MF" << endl;
-		}
-		cout << endl << "Coût Total : " << weightTotal << " MF" << endl << endl;
+	std::vector<int> cost = {0, 3, 6, 10, 15};
+	TrainGraphWrapper tgw(tn, [&cost] (TrainNetwork::Line l)-> int { return cost.at(l.nbTracks)*l.length; });
+	//auto mst = MinimumSpanningTree<TrainGraphWrapper>::EagerPrim(tgw);
+	auto mst = MinimumSpanningTree<TrainGraphWrapper>::Kruskal(tgw);
+	unsigned int weightTotal = 0;
+	for(auto const & i : mst) {
+		weightTotal += i.Weight();
+		cout << tn.cities[i.Either()].name  << " - "
+		     << tn.cities[i.Other(i.Either())].name << " : "
+		     << i.Weight() << " MF" << endl;
+	}
+	cout << endl << "Coût Total : " << weightTotal << " MF" << endl << endl;
 }
 
 
@@ -75,10 +74,11 @@ void ReseauLeMoinsCher(TrainNetwork &tn) {
  * @param tn, réseau de trains et de lignes complet
  */
 void PlusCourtChemin(const string& depart, const string& arrivee, TrainNetwork& tn) {
-    TrainGraphWrapperDistance tgw(tn);
-    DijkstraSP<TrainGraphWrapperDistance> referenceSP(tgw,tn.cityIdx[depart]);
-		cout << "  longueur = " << referenceSP.DistanceTo(tn.cityIdx[arrivee]) << " km" << endl;
-		printVia(cout, referenceSP.PathTo(tn.cityIdx[arrivee]), tn);
+	TrainDiGraphWrapper tgw(tn, [] (TrainNetwork::Line l)-> int { return l.length; });
+	DijkstraSP<TrainDiGraphWrapper> referenceSP(tgw,tn.cityIdx[depart]);
+	//BellmanFordSP<TrainDiGraphWrapper> referenceSP(tgw,tn.cityIdx[depart]);
+	cout << "  longueur = " << referenceSP.DistanceTo(tn.cityIdx[arrivee]) << " km" << endl;
+	printVia(cout, referenceSP.PathTo(tn.cityIdx[arrivee]), tn);
 }
 
 
@@ -114,16 +114,15 @@ void PlusCourtCheminAvecTravaux(const string& depart, const string& arrivee, con
  * @param tn, réseau de trains et de lignes complet
  */
 void PlusRapideChemin(const string& depart, const string& arrivee, const string& via, TrainNetwork& tn) {
-  TrainGraphWrapperDuration tgw(tn);
-	DijkstraSP<TrainGraphWrapperDuration> part1(tgw,tn.cityIdx[depart]);
-	DijkstraSP<TrainGraphWrapperDuration> part2(tgw,tn.cityIdx[via]);
+	TrainDiGraphWrapper tgw(tn, [] (TrainNetwork::Line l)-> int { return l.duration; });
+	DijkstraSP<TrainDiGraphWrapper> part1(tgw,tn.cityIdx[depart]);
+	DijkstraSP<TrainDiGraphWrapper> part2(tgw,tn.cityIdx[via]);
 	auto tot = part1.DistanceTo(tn.cityIdx[via]) + part2.DistanceTo(tn.cityIdx[arrivee]);
 	cout << "  temps = " << tot << " minutes" << endl;
 	auto path = part1.PathTo(tn.cityIdx[via]);
 	auto path2 = part2.PathTo(tn.cityIdx[arrivee]);
 	path.insert(path.end(), path2.begin(), path2.end());
 	printVia(cout, path, tn);
-
 }
 
 
@@ -169,9 +168,9 @@ void testShortestPath(string filename)
 int main() {
 
     // Permet de tester votre implémentation de Dijkstra
-    //testShortestPath("tinyEWD.txt");
-    //testShortestPath("mediumEWD.txt");
-    //testShortestPath("1000EWD.txt");
+    testShortestPath("tinyEWD.txt");
+    testShortestPath("mediumEWD.txt");
+    testShortestPath("1000EWD.txt");
     //testShortestPath("10000EWD.txt");
 
     TrainNetwork tn("reseau.txt");
