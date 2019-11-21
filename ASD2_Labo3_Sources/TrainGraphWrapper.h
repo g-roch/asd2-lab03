@@ -23,6 +23,8 @@ class TrainGraphWrapperCommon {
 		 * @param tn réseau de train
 		 * @param fnWeight Fonction convertisant un TrainNetwork::Line en 
 		 *	               poids (int)
+		 * @attention si fnWeight renvoie numeric_limits<Weight>::max(), alors la liaison
+		 *						est considérée comme inexistante.
 		 */
 		TrainGraphWrapperCommon(TrainNetwork const & tn, FnWeightType fnWeight)
 			: tn(tn), fnWeight(fnWeight) 
@@ -91,12 +93,13 @@ class TrainGraphWrapper : public TrainGraphWrapperCommon {
  		template<typename Func>
  		void forEachAdjacentEdge(int v, Func f) const  {
  			for(int lineid : tn.cities[v].lines) {
-				Edge e(
-						tn.lines[lineid].cities.first, 
-						tn.lines[lineid].cities.second,
-						fnWeight(tn.lines[lineid])
-						);
-				f(e);
+				if(fnWeight(tn.lines[lineid]) != std::numeric_limits<Weight>::max()) {
+					f(Edge(
+							tn.lines[lineid].cities.first, 
+							tn.lines[lineid].cities.second,
+							fnWeight(tn.lines[lineid])
+							));
+				}
  			}
  		}
 
@@ -109,11 +112,13 @@ class TrainGraphWrapper : public TrainGraphWrapperCommon {
  		template<typename Func>
  		void forEachEdge(Func f) const {
  			for(TrainNetwork::Line const & line : tn.lines) {
-				f(Edge(
-						line.cities.first, 
-						line.cities.second,
-						fnWeight(line)
-						));
+				if(fnWeight(line) != std::numeric_limits<Weight>::max()) {
+					f(Edge(
+							line.cities.first, 
+							line.cities.second,
+							fnWeight(line)
+							));
+				}
 			}
 		}
 };
@@ -143,16 +148,18 @@ class TrainDiGraphWrapper : public TrainGraphWrapperCommon{
  		template<typename Func>
  		void forEachAdjacentEdge(int v, Func f) const  {
  			for(int lineid : tn.cities[v].lines) {
-				f(Edge(
-						tn.lines[lineid].cities.first, 
-						tn.lines[lineid].cities.second,
-						fnWeight(tn.lines[lineid])
-						));
-				f(Edge(
-						tn.lines[lineid].cities.second,
-						tn.lines[lineid].cities.first, 
-						fnWeight(tn.lines[lineid])
-						));
+				if(fnWeight(tn.lines[lineid]) != std::numeric_limits<Weight>::max()) {
+					f(Edge(
+							tn.lines[lineid].cities.first, 
+							tn.lines[lineid].cities.second,
+							fnWeight(tn.lines[lineid])
+							));
+					f(Edge(
+							tn.lines[lineid].cities.second,
+							tn.lines[lineid].cities.first, 
+							fnWeight(tn.lines[lineid])
+							));
+				}
  			}
  		}
 
@@ -165,16 +172,18 @@ class TrainDiGraphWrapper : public TrainGraphWrapperCommon{
  		template<typename Func>
  		void forEachEdge(Func f) const {
  			for(TrainNetwork::Line const & line : tn.lines) {
-				f(Edge(
-						line.cities.second,
-						line.cities.first, 
-						fnWeight(line)
-						));
-				f(Edge(
-						line.cities.first, 
-						line.cities.second,
-						fnWeight(line)
-						));
+				if(fnWeight(line) != std::numeric_limits<Weight>::max()) {
+					f(Edge(
+							line.cities.second,
+							line.cities.first, 
+							fnWeight(line)
+							));
+					f(Edge(
+							line.cities.first, 
+							line.cities.second,
+							fnWeight(line)
+							));
+				}
 			}
 		}
 };

@@ -76,7 +76,6 @@ void ReseauLeMoinsCher(TrainNetwork &tn) {
 void PlusCourtChemin(const string& depart, const string& arrivee, TrainNetwork& tn) {
 	TrainDiGraphWrapper tgw(tn, [] (TrainNetwork::Line l)-> int { return l.length; });
 	DijkstraSP<TrainDiGraphWrapper> referenceSP(tgw,tn.cityIdx[depart]);
-	//BellmanFordSP<TrainDiGraphWrapper> referenceSP(tgw,tn.cityIdx[depart]);
 	cout << "  longueur = " << referenceSP.DistanceTo(tn.cityIdx[arrivee]) << " km" << endl;
 	printVia(cout, referenceSP.PathTo(tn.cityIdx[arrivee]), tn);
 }
@@ -93,15 +92,18 @@ void PlusCourtChemin(const string& depart, const string& arrivee, TrainNetwork& 
  * @param tn, réseau de trains et de lignes complet
  */
 void PlusCourtCheminAvecTravaux(const string& depart, const string& arrivee, const string& gareEnTravaux, TrainNetwork& tn) {
-	TrainNetwork tnTravaux(tn);
-	int idGareEnTravaux = tnTravaux.cityIdx.at(gareEnTravaux);
+	int idGareEnTravaux = tn.cityIdx.at(gareEnTravaux);
 
-	for(int lineid : tnTravaux.cities[idGareEnTravaux].lines) {
-		tnTravaux.lines[lineid].length = std::numeric_limits<int>::max();
-	}
-	tnTravaux.cities[idGareEnTravaux].lines.resize(0);
+	TrainDiGraphWrapper tgw(tn, [idGareEnTravaux] (TrainNetwork::Line l)-> int {
+			if(l.cities.first == idGareEnTravaux or l.cities.second == idGareEnTravaux)
+				return std::numeric_limits<int>::max();
+			else
+				return l.length; 
+			});
+	DijkstraSP<TrainDiGraphWrapper> referenceSP(tgw,tn.cityIdx[depart]);
+	cout << "  longueur = " << referenceSP.DistanceTo(tn.cityIdx[arrivee]) << " km" << endl;
+	printVia(cout, referenceSP.PathTo(tn.cityIdx[arrivee]), tn);
 
-	PlusCourtChemin(depart, arrivee, tnTravaux);
 }
 
 
